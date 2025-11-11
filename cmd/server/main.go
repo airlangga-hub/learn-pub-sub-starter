@@ -4,8 +4,8 @@ import (
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
-	"os"
-	"os/signal"
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/pubsub"
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/routing"
 )
 
 func main() {
@@ -22,11 +22,22 @@ func main() {
 
 	fmt.Println("Success connecting to RabbitMQ!")
 
-	signalChan := make(chan os.Signal, 1)
+	publishChannel, err := amqpConn.Channel()
+	if err != nil {
+		log.Fatal("Error creating RabbitMQ Channel: ", err)
+	}
 
-	signal.Notify(signalChan, os.Interrupt)
+	err = pubsub.PublishJSON(
+		publishChannel,
+		routing.ExchangePerilDirect,
+		routing.PauseKey,
+		routing.PlayingState{
+			IsPaused: true,
+		},
+	)
+	if err != nil {
+		log.Printf("could not publish time: %v", err)
+	}
 
-	<-signalChan
-
-	fmt.Println("RabbitMQ connection closed.")
+	fmt.Println("Pause message sent!")
 }
