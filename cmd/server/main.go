@@ -15,12 +15,12 @@ func main() {
 
 	amqpConn, err := amqp.Dial(connString)
 	if err != nil {
-		log.Fatal("Error connecting to RabbitMQ: ", err)
+		log.Fatal("Error connecting server to RabbitMQ: ", err)
 	}
 
 	defer amqpConn.Close()
 
-	fmt.Println("Success connecting to RabbitMQ!")
+	fmt.Println("Success connecting server to RabbitMQ!")
 
 	publishChannel, err := amqpConn.Channel()
 	if err != nil {
